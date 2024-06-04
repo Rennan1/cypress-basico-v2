@@ -26,7 +26,7 @@ describe('Central de Atendimento ao Cliente TAT', function() {
         const textoLongo = 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys.Teste, teste, teste, teste, teste, teste'
         cy.get('#firstName').type('Rennan')
         cy.get('#lastName').type('Oliveira')
-        cy.get('email').type('rennan.oliveira@itmss,com') ///email inválido
+        cy.get('#email').type('rennan.oliveira@itmss,com') ///email inválido
         cy.get('#open-text-area').type(textoLongo, {delay: 0}) 
         cy.contains('button', 'Enviar').click()
         cy.get('.error')
