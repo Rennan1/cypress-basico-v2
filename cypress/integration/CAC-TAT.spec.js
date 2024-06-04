@@ -24,12 +24,15 @@ describe('Central de Atendimento ao Cliente TAT', function() {
 
     it('exibe mensagem de erro ao submeter o formulário com um email com formatação inválida', function(){
         const textoLongo = 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys.Teste, teste, teste, teste, teste, teste'
+        cy.clock()
         cy.get('#firstName').type('Rennan')
         cy.get('#lastName').type('Oliveira')
         cy.get('#email').type('rennan.oliveira@itmss,com') ///email inválido
         cy.get('#open-text-area').type(textoLongo, {delay: 0}) 
         cy.contains('button', 'Enviar').click()
-        cy.get('.error')
+        cy.get('.error').should('be.visible')
+        cy.tick(3000)
+        cy.get('.error').should('not.be.visible')
     })
 
     it ('validação de campo vazio no campo telefone quando preenchido com valores não-numéricos', function(){
@@ -122,7 +125,7 @@ describe('Central de Atendimento ao Cliente TAT', function() {
             expect(input[0].files[0].name).to.equal('example.json')
         })
     })
-
+ /// Abrir uma nova aba no Cypress
     it('verifica que a política de privacidade abre em outra aba sem a necessidade de um clique', function(){
         cy.get('#privacy a') ///estamos olhando para a div com id privacy onde dentro da div temos um a
         .should('have.attr', 'target', '_blank') ///estamos passando o comando have.attr para verificar que tem o atributo target e estamos olhando se tem o target _blank
@@ -132,4 +135,48 @@ describe('Central de Atendimento ao Cliente TAT', function() {
         cy.get('#privacy a').invoke('removeAttr', 'target').click() ///com o invoke estamos removendo o Attr target e estamos clicando no link selecionado pelo get com .click()
         cy.contains('CAC TAT - Política de privacidade').should('be.visible')
     })
+ /// Exibir e esconder campos
+    it('exibe e esconde as mensagens de sucesso e erro usando o .invoke', function (){
+        cy.get('.success')
+          .should('not.be.visible')
+          .invoke('show')
+          .should('be.visible')
+          .and('contain', 'Mensagem enviada com sucesso.')
+          .invoke('hide')
+          .should('not.be.visible')
+        cy.get('.error')
+          .should('not.be.visible')
+          .invoke('show')
+          .should('be.visible')
+          .and('contain', 'Valide os campos obrigatórios!')
+          .invoke('hide')
+          .should('not.be.visible')
+      })
+    /// Preencher texto utilizando invoke
+      it('preenche a area de texto usando o comando invoke', function(){
+        const longText = Cypress._.repeat('0123456789', 20) /// variável usando lodash para repetir 10 caracteres 20 vezes
+
+        cy.get('#open-text-area')
+          .invoke('val', longText)        
+          .should('have.value', longText)
+      })
+
+    /// Request
+
+      it('faz uma requisição HTTP', function(){
+        cy.request('https://cac-tat.s3.eu-central-1.amazonaws.com/index.html')
+          .should(function(response) {
+           const {status, statusText, body} = response
+           expect(status).to.equal(200)
+           expect(statusText).to.equal('OK')
+           expect(body).to.include('CAC TAT')
+          })         
+      })
+
+      it('Desafio: Encontre o gato', function(){
+        cy.get('#cat').should('not.be.visible')
+        .invoke('show')
+        .should('be.visible')
+      })
+    
 })
